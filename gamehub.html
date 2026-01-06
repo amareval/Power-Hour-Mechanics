@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connected Play - Game Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a; /* Slate 900 */
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1e293b; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #475569; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b; 
+        }
+
+        /* Neon Glow Effects */
+        .neon-text {
+            text-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+        }
+        
+        .game-card {
+            transition: all 0.3s ease;
+        }
+        .game-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 0 15px rgba(56, 189, 248, 0.2);
+            border-color: #38bdf8;
+        }
+
+        .power-hour-glow {
+            animation: pulse-gold 2s infinite;
+        }
+
+        @keyframes pulse-gold {
+            0% { box-shadow: 0 0 0 0 rgba(234, 179, 8, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(234, 179, 8, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(234, 179, 8, 0); }
+        }
+    </style>
+</head>
+<body class="text-white h-screen flex flex-col overflow-hidden">
+
+    <!-- TOP BAR -->
+    <header class="bg-slate-800 border-b border-slate-700 h-16 flex items-center justify-between px-6 shrink-0">
+        <div class="flex items-center gap-4">
+            <div class="bg-blue-600 px-3 py-1 rounded font-bold text-lg tracking-wider">LANE 12</div>
+            <div class="flex items-center text-green-400 text-sm font-semibold">
+                <i class="fas fa-wifi mr-2"></i> Connected Play Active
+            </div>
+        </div>
+        
+        <div class="text-slate-400 font-medium">
+            <span id="clock">12:58 PM</span>
+        </div>
+
+        <div class="flex items-center gap-4">
+            <button class="text-slate-300 hover:text-white transition">
+                <i class="fas fa-bell text-xl"></i>
+            </button>
+            <button class="bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-lg font-semibold text-sm transition flex items-center gap-2">
+                <i class="fas fa-cog"></i> Settings
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="flex-1 flex overflow-hidden">
+        
+        <!-- LEFT SIDEBAR: THE SQUAD (Players) -->
+        <aside class="w-64 bg-slate-900 border-r border-slate-800 flex flex-col shrink-0">
+            <div class="p-5 border-b border-slate-800">
+                <h2 class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-4">Your Squad</h2>
+                
+                <!-- Player List -->
+                <div class="space-y-3">
+                    <!-- Player 1 -->
+                    <div class="flex items-center gap-3 bg-slate-800 p-2 rounded-lg border border-slate-700">
+                        <div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center font-bold text-xs">JD</div>
+                        <div class="flex-1">
+                            <div class="text-sm font-semibold">John D.</div>
+                            <div class="text-xs text-blue-400">Account Linked</div>
+                        </div>
+                        <i class="fas fa-check-circle text-green-500 text-xs"></i>
+                    </div>
+
+                    <!-- Player 2 -->
+                    <div class="flex items-center gap-3 bg-slate-800 p-2 rounded-lg border border-slate-700">
+                        <div class="w-8 h-8 rounded-full bg-pink-500 flex items-center justify-center font-bold text-xs">SM</div>
+                        <div class="flex-1">
+                            <div class="text-sm font-semibold">Sarah M.</div>
+                            <div class="flex items-center justify-between mt-0.5">
+                                <span class="text-xs text-slate-400">Guest</span>
+                                <button class="text-[10px] bg-slate-700 hover:bg-slate-600 text-blue-300 hover:text-white px-2 py-0.5 rounded border border-slate-600 transition flex items-center gap-1">
+                                    <i class="fas fa-link text-[9px]"></i> Link
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Player 3 -->
+                    <div class="flex items-center gap-3 bg-slate-800 p-2 rounded-lg border border-slate-700">
+                        <div class="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center font-bold text-xs">MK</div>
+                        <div class="flex-1">
+                            <div class="text-sm font-semibold">Mike K.</div>
+                            <div class="flex items-center justify-between mt-0.5">
+                                <span class="text-xs text-slate-400">Guest</span>
+                                <button class="text-[10px] bg-slate-700 hover:bg-slate-600 text-blue-300 hover:text-white px-2 py-0.5 rounded border border-slate-600 transition flex items-center gap-1">
+                                    <i class="fas fa-link text-[9px]"></i> Link
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="mt-4 w-full py-2 border border-dashed border-slate-600 text-slate-400 rounded-lg hover:border-slate-400 hover:text-white transition text-sm flex items-center justify-center gap-2">
+                    <i class="fas fa-plus"></i> Add Player
+                </button>
+            </div>
+
+            <div class="mt-auto p-5 bg-gradient-to-t from-blue-900/20 to-transparent">
+                <div class="text-xs text-slate-400 mb-1">Session Time</div>
+                <div class="text-2xl font-bold font-mono">00:00</div>
+                <button class="w-full mt-3 bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white py-2 rounded transition text-sm font-semibold">
+                    End Session
+                </button>
+            </div>
+        </aside>
+
+
+        <!-- CENTER AREA: GAME SELECTION -->
+        <section class="flex-1 bg-slate-900/50 p-8 overflow-y-auto relative">
+            
+            <!-- Hero / Welcome -->
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold mb-2">Welcome, Team John! <span class="text-2xl">👋</span></h1>
+                <p class="text-slate-400">Select an experience to start your session.</p>
+            </div>
+
+            <!-- Game Grid -->
+            <!-- Added grid-flow-dense to help pack items nicely if Standard is 1-col and Power Hour is 2-col -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 grid-flow-dense">
+
+                <!-- CARD: POWER HOUR (FEATURED) - Moved to TOP -->
+                <div class="col-span-1 lg:col-span-2 bg-gradient-to-r from-yellow-900/40 to-slate-800 border border-yellow-500/30 rounded-xl p-6 relative overflow-hidden game-card cursor-pointer group power-hour-glow">
+                    <div class="absolute top-4 right-4 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded animate-pulse">LIVE NOW</div>
+                    <div class="flex items-start justify-between relative z-10">
+                        <div>
+                            <div class="text-yellow-400 font-bold tracking-widest text-sm mb-1 uppercase">Event in Progress</div>
+                            <h3 class="text-3xl font-extrabold text-white mb-2 italic">POWER HOUR ⚡</h3>
+                            <p class="text-slate-300 text-sm max-w-md mb-4">Compete for the hourly $200 jackpot. Only 45 mins left! <br> <span class="text-yellow-200 text-xs">Requires $25 Entry • Includes 50% off Food</span></p>
+                            <button class="bg-yellow-500 hover:bg-yellow-400 text-slate-900 font-bold px-6 py-2 rounded-lg shadow-lg shadow-yellow-500/20 transition">
+                                Join Now
+                            </button>
+                        </div>
+                        <div class="hidden sm:block text-right">
+                            <div class="text-xs text-yellow-500 uppercase font-bold">Current Jackpot</div>
+                            <div class="text-4xl font-bold text-white">$200</div>
+                            <div class="text-xs text-slate-400 mt-1">Ends at 2:00 PM</div>
+                        </div>
+                    </div>
+                    <!-- Background texture -->
+                    <div class="absolute -bottom-10 -right-10 text-9xl text-yellow-500/5 rotate-12">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                </div>
+
+                <!-- CARD: STANDARD BOWLING -->
+                <div class="bg-slate-800 border border-slate-700 rounded-xl p-5 relative overflow-hidden game-card cursor-pointer group hover:border-blue-500">
+                    <div class="mb-4">
+                        <div class="w-12 h-12 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center text-2xl mb-3 group-hover:bg-blue-500 group-hover:text-white transition">
+                            <i class="fas fa-bowling-ball"></i>
+                        </div>
+                        <h3 class="text-xl font-bold">Standard Play</h3>
+                        <p class="text-slate-400 text-xs mt-1">Just good old fashioned 10-pin bowling. No gimmicks.</p>
+                    </div>
+                    <div class="flex gap-2 mt-4">
+                        <span class="text-[10px] bg-slate-700 px-2 py-1 rounded text-slate-300">Open Play</span>
+                        <span class="text-[10px] bg-slate-700 px-2 py-1 rounded text-slate-300">Practice</span>
+                    </div>
+                </div>
+
+                <!-- CARD: BEAT THE LEGEND -->
+                <div class="bg-slate-800 border border-slate-700 rounded-xl p-5 relative overflow-hidden game-card cursor-pointer group hover:border-purple-500">
+                    <div class="absolute top-0 right-0 bg-purple-600 text-white text-[10px] font-bold px-2 py-1 rounded-bl-lg">DAILY CHALLENGE</div>
+                    <div class="mb-4">
+                        <div class="w-12 h-12 rounded-lg bg-purple-500/20 text-purple-400 flex items-center justify-center text-2xl mb-3 group-hover:bg-purple-500 group-hover:text-white transition">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                        <h3 class="text-xl font-bold">Beat the Legend</h3>
+                        <p class="text-slate-400 text-xs mt-1">Can you beat the local high score?</p>
+                    </div>
+                    <div class="bg-slate-900/50 rounded p-3 flex items-center justify-between">
+                        <div class="text-xs text-slate-500">Target to Beat</div>
+                        <div class="text-lg font-bold text-purple-400">185 <span class="text-[10px] text-slate-500 font-normal">(Dave R.)</span></div>
+                    </div>
+                </div>
+
+                <!-- CARD: SPACE PINVADERS -->
+                <div class="bg-slate-800 border border-slate-700 rounded-xl p-5 relative overflow-hidden game-card cursor-pointer group hover:border-green-500">
+                    <div class="absolute top-0 right-0 bg-green-600 text-white text-[10px] font-bold px-2 py-1 rounded-bl-lg">CO-OP SURVIVAL</div>
+                    <div class="mb-4">
+                        <div class="w-12 h-12 rounded-lg bg-green-500/20 text-green-400 flex items-center justify-center text-2xl mb-3 group-hover:bg-green-500 group-hover:text-white transition">
+                            <i class="fas fa-rocket"></i>
+                        </div>
+                        <h3 class="text-xl font-bold">Space Pinvaders</h3>
+                        <p class="text-slate-400 text-xs mt-1">Work together to blast aliens. Hit target scores to survive.</p>
+                    </div>
+                    <div class="flex gap-2 mt-4">
+                        <span class="text-[10px] bg-slate-700 px-2 py-1 rounded text-slate-300">Endless Mode</span>
+                        <span class="text-[10px] bg-slate-700 px-2 py-1 rounded text-slate-300">Family Friendly</span>
+                    </div>
+                </div>
+
+                 <!-- CARD: ANGRY BIRDS (Example of 3rd party) -->
+                 <div class="bg-slate-800 border border-slate-700 rounded-xl p-5 relative overflow-hidden game-card cursor-pointer group hover:border-red-500 opacity-75">
+                    <div class="mb-4">
+                        <div class="w-12 h-12 rounded-lg bg-red-500/20 text-red-400 flex items-center justify-center text-2xl mb-3 group-hover:bg-red-500 group-hover:text-white transition">
+                            <i class="fas fa-crow"></i>
+                        </div>
+                        <h3 class="text-xl font-bold">Angry Birds</h3>
+                        <p class="text-slate-400 text-xs mt-1">Knock down the pigs' castle structures.</p>
+                    </div>
+                    <div class="flex gap-2 mt-4">
+                        <span class="text-[10px] bg-slate-700 px-2 py-1 rounded text-slate-300">Kids</span>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+
+        <!-- RIGHT SIDEBAR: LEADERBOARD & INFO -->
+        <aside class="w-72 bg-slate-900 border-l border-slate-800 flex flex-col shrink-0">
+            
+            <!-- Leaderboard Header -->
+            <div class="p-5 border-b border-slate-800">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-slate-400 text-xs font-bold uppercase tracking-wider">Center Leaders</h2>
+                    <select class="bg-slate-800 border border-slate-700 text-xs rounded px-2 py-1 text-slate-300 outline-none">
+                        <option>Today</option>
+                        <option>This Week</option>
+                    </select>
+                </div>
+
+                <!-- Top 3 -->
+                <div class="space-y-4">
+                    <!-- Rank 1 -->
+                    <div class="flex items-center gap-3">
+                        <div class="text-yellow-500 font-bold text-lg w-4 text-center">1</div>
+                        <div class="flex-1">
+                            <div class="text-sm font-bold text-white">BigMike</div>
+                            <div class="text-xs text-slate-500">Score: 245</div>
+                        </div>
+                        <i class="fas fa-crown text-yellow-500"></i>
+                    </div>
+                    <!-- Rank 2 -->
+                    <div class="flex items-center gap-3">
+                        <div class="text-slate-400 font-bold text-lg w-4 text-center">2</div>
+                        <div class="flex-1">
+                            <div class="text-sm font-semibold text-slate-300">StrikeQn</div>
+                            <div class="text-xs text-slate-500">Score: 228</div>
+                        </div>
+                    </div>
+                    <!-- Rank 3 -->
+                    <div class="flex items-center gap-3">
+                        <div class="text-orange-700 font-bold text-lg w-4 text-center">3</div>
+                        <div class="flex-1">
+                            <div class="text-sm font-semibold text-slate-300">PinPal</div>
+                            <div class="text-xs text-slate-500">Score: 210</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ad / Promo Spot -->
+            <div class="p-5">
+                <div class="bg-gradient-to-br from-blue-900 to-slate-800 rounded-xl p-4 border border-blue-500/30">
+                    <div class="flex items-center gap-2 mb-2">
+                        <i class="fas fa-pizza-slice text-orange-400"></i>
+                        <span class="text-sm font-bold text-white">Hungry?</span>
+                    </div>
+                    <p class="text-xs text-slate-300 mb-3">Order food & drinks directly to Lane 12.</p>
+                    <button class="w-full bg-slate-700 hover:bg-slate-600 text-white text-xs font-bold py-2 rounded transition">
+                        View Menu
+                    </button>
+                </div>
+            </div>
+
+            <!-- Footer Logo -->
+            <div class="mt-auto p-5 text-center opacity-30">
+                <i class="fas fa-bowling-ball text-4xl mb-2"></i>
+                <div class="text-[10px] font-bold tracking-widest uppercase">Connected Play</div>
+            </div>
+
+        </aside>
+
+    </main>
+
+    <!-- JS for Clock -->
+    <script>
+        function updateClock() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            document.getElementById('clock').textContent = timeString;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+    </script>
+</body>
+</html>
