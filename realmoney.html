@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matchups - Individual Frames Visual</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a; /* Dark background */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 40px;
+            gap: 60px;
+            color: white;
+        }
+
+        /* ----- SHARED STYLES ----- */
+        .device-label {
+            text-align: center;
+            font-size: 14px;
+            font-weight: 600;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+        }
+
+        .shadow-soft {
+            box-shadow: 0 20px 40px -5px rgba(0, 0, 0, 0.5), 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+        }
+
+        .font-oswald { font-family: 'Oswald', sans-serif; }
+
+        /* ----- PROJECTOR SCREEN (Top) ----- */
+        .projector-container {
+            width: 1000px; /* Wider for 4-player grid */
+            height: 550px; /* Taller for 4-player grid */
+            background-color: #020617;
+            border: 8px solid #1e293b;
+            border-radius: 12px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Top Header Area */
+        .match-header {
+            height: 60px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 30px;
+            background: rgba(0,0,0,0.5);
+            border-bottom: 1px solid #334155;
+            z-index: 10;
+        }
+
+        .header-title {
+            font-family: 'Oswald', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .live-bet-badge {
+            background: #000;
+            border: 1px solid #22c55e;
+            color: #22c55e;
+            font-family: 'Oswald', sans-serif;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .pulse-dot { width: 8px; height: 8px; background: #22c55e; border-radius: 50%; animation: pulse 1s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+
+        /* Main Battle Area (Active Bowler) */
+        .battle-area {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background: radial-gradient(circle at center, #1e293b 0%, #020617 100%);
+            border-bottom: 1px solid #334155;
+        }
+
+        .battle-card {
+            width: 80%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 20px 40px;
+            position: relative;
+        }
+
+        .vs-circle {
+            position: absolute;
+            left: 50%; top: 50%; transform: translate(-50%, -50%);
+            width: 60px; height: 60px;
+            background: #ef4444; border: 4px solid #0f172a;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 24px; color: white;
+            z-index: 10;
+        }
+
+        .player-lg { text-align: center; }
+        .pl-name { font-family: 'Oswald', sans-serif; font-size: 48px; font-weight: 700; line-height: 1; }
+        .pl-role { font-size: 12px; color: #94a3b8; text-transform: uppercase; font-weight: 700; letter-spacing: 1px; }
+        .pl-score { font-family: 'Oswald', sans-serif; font-size: 64px; font-weight: 700; line-height: 1; }
+        .pl-blue { color: #3b82f6; }
+        .pl-gray { color: #64748b; }
+
+        .odds-pill {
+            background: #0f172a; border: 1px solid #334155;
+            padding: 4px 10px; border-radius: 4px;
+            color: #22c55e; font-weight: 700; font-size: 12px;
+            margin-top: 5px; display: inline-block;
+        }
+
+        /* 4-Player Score Grid (Bottom) */
+        .score-grid {
+            height: 200px;
+            background: #020617;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .grid-row {
+            flex: 1;
+            display: flex;
+            border-bottom: 1px solid #1e293b;
+        }
+        .grid-row:last-child { border-bottom: none; }
+        .grid-row.active-row { background: rgba(59, 130, 246, 0.1); border-left: 4px solid #3b82f6; }
+
+        .player-info-cell {
+            width: 120px;
+            display: flex;
+            align-items: center;
+            padding-left: 15px;
+            border-right: 1px solid #1e293b;
+            gap: 10px;
+        }
+        .pi-avatar { width: 24px; height: 24px; background: #334155; border-radius: 50%; font-size: 10px; display: flex; align-items: center; justify-content: center; }
+        .pi-name { font-weight: 700; font-size: 14px; }
+
+        .frames-container {
+            flex: 1;
+            display: flex;
+        }
+        
+        .frame-cell {
+            flex: 1;
+            border-right: 1px solid #1e293b;
+            display: flex;
+            flex-direction: column;
+        }
+        .fc-top { flex: 1; display: flex; border-bottom: 1px solid #1e293b; font-size: 12px; color: #cbd5e1; }
+        .shot { flex: 1; display: flex; align-items: center; justify-content: center; }
+        .shot:first-child { border-right: 1px solid #1e293b; }
+        .fc-total { flex: 1; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; }
+
+        /* ----- TABLET KIOSK (Bottom) ----- */
+        .tablet-frame {
+            width: 800px;
+            height: 550px;
+            background-color: #1e293b;
+            border: 12px solid #0f172a;
+            border-radius: 24px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tablet-header {
+            height: 60px;
+            background: #0f172a;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            border-bottom: 1px solid #334155;
+        }
+
+        .th-balance {
+            background: #334155;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 14px;
+            color: #facc15;
+        }
+
+        .tablet-body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #1e293b;
+            padding: 20px;
+        }
+
+        /* Betting Row */
+        .active-bet-row {
+            background: #0f172a;
+            border: 1px solid #facc15; /* Gold border for active bet */
+            border-radius: 8px;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .abr-left { display: flex; flex-direction: column; }
+        .abr-title { font-size: 12px; color: #facc15; font-weight: 700; text-transform: uppercase; }
+        .abr-detail { font-size: 16px; font-weight: 700; color: white; }
+        .abr-right { text-align: right; }
+        .abr-payout { font-family: 'Oswald', sans-serif; font-size: 24px; color: #22c55e; }
+
+        /* Tablet Score Grid (Mirror of Projector but interactive) */
+        .tablet-grid {
+            flex: 1;
+            background: #0f172a;
+            border-radius: 8px;
+            border: 1px solid #334155;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        /* Reuse grid styles but ensure they fit */
+        .t-grid-row {
+            flex: 1;
+            display: flex;
+            border-bottom: 1px solid #334155;
+        }
+        .t-grid-row:last-child { border-bottom: none; }
+        .t-grid-row.active { background: rgba(59, 130, 246, 0.1); }
+
+    </style>
+</head>
+<body>
+
+    <!-- 1. PROJECTOR SCREEN (TOP) -->
+    <div>
+        <div class="device-label">End-of-Lane Projector (Public)</div>
+        <div class="projector-container shadow-soft">
+            
+            <!-- Header -->
+            <div class="match-header">
+                <div class="header-title"><i class="fas fa-trophy"></i> LANE 12 MATCHUPS</div>
+                <div class="live-bet-badge"><div class="pulse-dot"></div> LIVE WAGERING</div>
+            </div>
+
+            <!-- Active Matchup (Focus) -->
+            <div class="battle-area">
+                <div class="battle-card">
+                    <div class="vs-circle">VS</div>
+                    
+                    <!-- Hero -->
+                    <div class="player-lg">
+                        <div class="pl-role">Current Bowler</div>
+                        <div class="pl-name pl-blue">ALEX</div>
+                        <div class="odds-pill">WIN ODDS: -110</div>
+                    </div>
+
+                    <!-- Villain -->
+                    <div class="player-lg">
+                        <div class="pl-role">Opponent (Lane 5)</div>
+                        <div class="pl-name pl-gray">MIKE</div>
+                        <div class="odds-pill">WIN ODDS: +105</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4-Player Score Grid -->
+            <div class="score-grid">
+                <!-- Player 1 (Alex - Active) -->
+                <div class="grid-row active-row">
+                    <div class="player-info-cell">
+                        <div class="pi-avatar" style="background:#3b82f6;">AL</div>
+                        <div class="pi-name" style="color:#3b82f6;">Alex</div>
+                    </div>
+                    <div class="frames-container">
+                        <div class="frame-cell"><div class="fc-top"><div class="shot">9</div><div class="shot">/</div></div><div class="fc-total">18</div></div>
+                        <div class="frame-cell"><div class="fc-top"><div class="shot">X</div><div class="shot"></div></div><div class="fc-total">38</div></div>
+                        <div class="frame-cell"><div class="fc-top"><div class="shot">8</div><div class="shot">-</div></div><div class="fc-total">46</div></div>
+                        <div class="frame-cell" style="background:rgba(59,130,246,0.2);"><div class="fc-top"><div class="shot"></div><div class="shot"></div></div><div class="fc-total"></div></div>
+                        <div class="frame-cell"><div class="fc-top"><div class="shot"></div><div class="shot"></div></div><div class="fc-total"></div></div>
+                        <div class="frame-cell"><div class="fc-top"><div class="shot"></div><div class="shot"></div></div><div class="fc-total"></div></div>
+                        <div class="frame-cell"><div class="fc-top"><div class="shot"></div><div class="shot"></div></div><div class="fc-total"></div></div>
+                        <div class="frame-cell"><div class="fc-top"><div class="shot"></div><div class="shot"></div></div><div class="fc-total"></div></div>
+                        <div class="frame-cell"><div class="fc-top"><div class="shot"></div><div class="shot"></div></div><div class="fc-total"></div></div>
+                        <div class="frame-cell"><div class="fc-top"><div class="shot"></div><div class="shot"></div></div><div class="fc-total"></div></div>
+                    </div>
+                </div>
+                
+                <!-- Player 2 (Sarah) -->
+                <div class="grid-row">
+                    <div class="player-info-cell">
+                        <div class="pi-avatar">SA</div>
+                        <div class="pi-name">Sarah</div>
+                    </div>
+                    <div class="frames-container">
+                        <div class="frame-cell"><div class="fc-top"><div class="shot">7</div><div class="shot">2</div></div><div class="fc-total">9</div></div>
+                        <div class="frame-cell"><div class="fc-top"><div class="shot">8</div><div class="shot">/</div></div><div class="fc-total">25</div></div>
+                        <div class="frame-cell"><div class="fc-top"><div class="shot">6</div><div class="shot">3</div></div><div class="fc-total">34</div></div>
+                        <div class="frame-cell"><div class="fc-top"><div class="shot"></div><div class="shot"></div></div><div class="fc-total"></div></div>
+                        <div class="frame-cell"><div class="fc-top"><div class="shot"></div><div class="shot"></div></div><div class="fc-total"></div></div>
+                        <!-- ... rest empty ... -->
+                        <div class="frame-cell"></div><div class="frame-cell"></div><div class="frame-cell"></div><div class="frame-cell"></div><div class="frame-cell"></div>
+                    </div>
+                </div>
+
+                <!-- Player 3 (John) -->
+                <div class="grid-row">
+                    <div class="player-info-cell">
+                        <div class="pi-avatar">JO</div>
+                        <div class="pi-name">John</div>
+                    </div>
+                    <div class="frames-container">
+                        <div class="frame-cell"><div class="fc-top"><div class="shot">X</div><div class="shot"></div></div><div class="fc-total">22</div></div>
+                        <div class="frame-cell"><div class="fc-top"><div class="shot">X</div><div class="shot"></div></div><div class="fc-total">41</div></div>
+                        <div class="frame-cell"><div class="fc-top"><div class="shot">9</div><div class="shot">-</div></div><div class="fc-total">50</div></div>
+                        <div class="frame-cell"><div class="fc-top"><div class="shot"></div><div class="shot"></div></div><div class="fc-total"></div></div>
+                        <!-- ... rest empty ... -->
+                        <div class="frame-cell"></div><div class="frame-cell"></div><div class="frame-cell"></div><div class="frame-cell"></div><div class="frame-cell"></div><div class="frame-cell"></div>
+                    </div>
+                </div>
+
+                <!-- Player 4 (Emily) -->
+                <div class="grid-row">
+                    <div class="player-info-cell">
+                        <div class="pi-avatar">EM</div>
+                        <div class="pi-name">Emily</div>
+                    </div>
+                    <div class="frames-container">
+                        <div class="frame-cell"><div class="fc-top"><div class="shot">8</div><div class="shot">1</div></div><div class="fc-total">9</div></div>
+                        <div class="frame-cell"><div class="fc-top"><div class="shot">7</div><div class="shot">/</div></div><div class="fc-total">26</div></div>
+                        <div class="frame-cell"><div class="fc-top"><div class="shot">7</div><div class="shot">2</div></div><div class="fc-total">35</div></div>
+                        <div class="frame-cell"><div class="fc-top"><div class="shot"></div><div class="shot"></div></div><div class="fc-total"></div></div>
+                        <!-- ... rest empty ... -->
+                        <div class="frame-cell"></div><div class="frame-cell"></div><div class="frame-cell"></div><div class="frame-cell"></div><div class="frame-cell"></div><div class="frame-cell"></div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+    <!-- 2. LANE TABLET (BOTTOM) -->
+    <div>
+        <div class="device-label">Lane Tablet (Kiosk)</div>
+        <div class="tablet-frame shadow-soft">
+            
+            <!-- Header -->
+            <div class="tablet-header">
+                <div class="th-title"><i class="fas fa-coins"></i> LIVE WAGERING</div>
+                <div class="th-balance">Balance: $125.00</div>
+            </div>
+
+            <div class="tablet-body">
+                
+                <!-- Active Bet Panel -->
+                <div class="active-bet-row">
+                    <div class="abr-left">
+                        <div class="abr-title">Active Wager</div>
+                        <div class="abr-detail">Alex Wins Frame 4 (vs Mike)</div>
+                    </div>
+                    <div class="abr-right">
+                        <div class="abr-title" style="color:#22c55e;">Potential Win</div>
+                        <div class="abr-payout">$25.00</div>
+                    </div>
+                </div>
+
+                <!-- Prop Bets Grid -->
+                <div style="font-size:12px; font-weight:700; color:#94a3b8; margin-bottom:10px; text-transform:uppercase;">Quick Bets (Alex Frame 4)</div>
+                <div style="display:flex; gap:10px; margin-bottom:20px;">
+                    <button style="flex:1; background:#1e293b; border:1px solid #334155; padding:10px; border-radius:6px; color:white; font-weight:700; font-size:12px;">
+                        STRIKE <span style="color:#facc15; display:block;">+250</span>
+                    </button>
+                    <button style="flex:1; background:#1e293b; border:1px solid #334155; padding:10px; border-radius:6px; color:white; font-weight:700; font-size:12px;">
+                        SPARE <span style="color:#facc15; display:block;">+150</span>
+                    </button>
+                    <button style="flex:1; background:#1e293b; border:1px solid #334155; padding:10px; border-radius:6px; color:white; font-weight:700; font-size:12px;">
+                        OPEN <span style="color:#facc15; display:block;">-110</span>
+                    </button>
+                </div>
+
+                <!-- Score Grid (Compact Mirror) -->
+                <div class="tablet-grid">
+                    <div class="t-grid-row active">
+                        <div style="padding:10px; width:100px; color:#3b82f6; font-weight:700;">Alex</div>
+                        <div style="padding:10px; flex:1;">Frame 4: 18..38..46..[ ]</div>
+                    </div>
+                    <div class="t-grid-row">
+                        <div style="padding:10px; width:100px; color:white; font-weight:600;">Sarah</div>
+                        <div style="padding:10px; flex:1; color:#94a3b8;">Frame 4: 9...25..34..[ ]</div>
+                    </div>
+                    <div class="t-grid-row">
+                        <div style="padding:10px; width:100px; color:white; font-weight:600;">John</div>
+                        <div style="padding:10px; flex:1; color:#94a3b8;">Frame 4: 22..41..50..[ ]</div>
+                    </div>
+                    <div class="t-grid-row">
+                        <div style="padding:10px; width:100px; color:white; font-weight:600;">Emily</div>
+                        <div style="padding:10px; flex:1; color:#94a3b8;">Frame 4: 9...26..35..[ ]</div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+</body>
+</html>
