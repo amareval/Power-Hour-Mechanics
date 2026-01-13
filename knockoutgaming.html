@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matchups (Knockout) Prototype V2</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f1f5f9; /* Light gray background */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 40px;
+            gap: 60px;
+        }
+
+        /* ----- SHARED STYLES ----- */
+        .device-label {
+            text-align: center;
+            font-size: 14px;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+        }
+
+        .shadow-soft {
+            box-shadow: 0 20px 40px -5px rgba(0, 0, 0, 0.1), 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+        }
+
+        .font-oswald {
+            font-family: 'Oswald', sans-serif;
+        }
+
+        /* ----- PROJECTOR SCREEN (Top) ----- */
+        .projector-container {
+            width: 900px;
+            height: 400px;
+            background-color: white;
+            border: 8px solid #e2e8f0;
+            border-radius: 12px;
+            overflow: hidden;
+            display: flex;
+        }
+
+        /* Projector Left (Matchup) - 70% */
+        .projector-left {
+            width: 70%;
+            display: flex;
+            position: relative;
+            background: #f8fafc;
+        }
+
+        .p-side {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-right: 1px solid #e2e8f0;
+        }
+        .p-side:last-child { border-right: none; }
+
+        .vs-circle {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            background: #ef4444;
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            font-size: 24px;
+            border: 4px solid white;
+            z-index: 10;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .p-name-lg {
+            font-family: 'Oswald', sans-serif;
+            font-size: 48px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #1e293b;
+            line-height: 1;
+        }
+
+        .p-lane-lg {
+            font-size: 16px;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+
+        .p-score-lg {
+            font-size: 80px;
+            font-weight: 800;
+            color: #0f172a;
+            line-height: 1;
+        }
+
+        .leading-badge {
+            background: #22c55e;
+            color: white;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            margin-top: 10px;
+        }
+
+        /* Projector Right (Leaderboard) - 30% */
+        .projector-sidebar {
+            width: 30%;
+            background: #1e293b; /* Dark contrast for sidebar */
+            color: white;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            font-family: 'Oswald', sans-serif;
+            font-size: 18px;
+            font-weight: 500;
+            text-transform: uppercase;
+            color: #94a3b8;
+            border-bottom: 1px solid #334155;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+        }
+
+        .lb-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #334155;
+            font-size: 14px;
+        }
+        .lb-row:last-child { border-bottom: none; }
+
+        .lb-rank { color: #facc15; font-weight: 700; width: 25px; }
+        .lb-name { flex: 1; font-weight: 600; }
+        .lb-record { font-family: 'Oswald', sans-serif; letter-spacing: 1px; color: #cbd5e1; }
+
+
+        /* ----- TABLET KIOSK (Bottom) ----- */
+        .tablet-frame {
+            width: 800px;
+            height: 500px;
+            background: #ffffff;
+            border: 12px solid #cbd5e1;
+            border-radius: 24px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tablet-header {
+            height: 50px;
+            background: #f1f5f9;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+        }
+
+        .th-title {
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            font-size: 18px;
+            color: #ef4444;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tablet-body {
+            flex: 1;
+            display: flex;
+        }
+
+        /* Tablet Left (Matchup) - 70% */
+        .tablet-left {
+            width: 70%;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid #e2e8f0;
+        }
+
+        .tablet-matchup-view {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+        }
+
+        .tm-card {
+            width: 100%;
+            height: 100%;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            display: flex;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .tm-side {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .tm-side.hero { background: #eff6ff; }
+        .tm-side.villain { background: #fff1f2; }
+
+        .tm-score { font-size: 60px; font-weight: 800; color: #0f172a; line-height: 1; }
+        .tm-label { font-size: 14px; font-weight: 600; color: #64748b; text-transform: uppercase; margin-bottom: 5px; }
+        
+        .tm-vs {
+            position: absolute;
+            left: 50%; top: 50%; transform: translate(-50%, -50%);
+            background: white; padding: 5px 15px; border-radius: 20px;
+            font-weight: 900; color: #cbd5e1; border: 1px solid #e2e8f0;
+        }
+
+        /* Tablet Footer (Lane Roster) */
+        .tablet-footer {
+            height: 120px;
+            background: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+            padding: 15px;
+            display: flex;
+            gap: 15px;
+        }
+
+        .lane-player {
+            flex: 1;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .lane-player.active { border: 2px solid #3b82f6; background: #eff6ff; }
+
+        .lp-avatar {
+            width: 32px; height: 32px; border-radius: 50%; background: #cbd5e1;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 700; color: white; margin-bottom: 5px;
+        }
+        .active .lp-avatar { background: #3b82f6; }
+
+        .lp-name { font-weight: 700; font-size: 14px; color: #1e293b; }
+        .lp-record { font-family: 'Oswald', sans-serif; font-size: 14px; color: #64748b; }
+
+        /* Tablet Right (Leaderboard) - 30% */
+        .tablet-sidebar {
+            width: 30%;
+            background: white;
+            padding: 15px;
+        }
+        
+        /* Reusing Projector Sidebar styles but with light theme adjustments */
+        .tablet-sidebar .sidebar-header { color: #334155; border-color: #e2e8f0; }
+        .tablet-sidebar .lb-row { border-color: #f1f5f9; color: #334155; }
+        .tablet-sidebar .lb-rank { color: #f59e0b; } /* Darker yellow for white bg */
+        .tablet-sidebar .lb-record { color: #64748b; }
+
+    </style>
+</head>
+<body>
+
+    <!-- 1. PROJECTOR SCREEN (TOP) -->
+    <div>
+        <div class="device-label">End-of-Lane Projector (Public)</div>
+        <div class="projector-container shadow-soft">
+            
+            <!-- LEFT: Matchup Status -->
+            <div class="projector-left">
+                <div class="vs-circle">VS</div>
+                
+                <!-- Player 1 -->
+                <div class="p-side">
+                    <div class="p-lane-lg">Lane 12</div>
+                    <div class="p-name-lg">ALEX</div>
+                    <div class="p-score-lg">9</div>
+                    <div class="leading-badge">Leading</div>
+                </div>
+
+                <!-- Player 2 -->
+                <div class="p-side">
+                    <div class="p-lane-lg">Lane 05</div>
+                    <div class="p-name-lg">MIKE</div>
+                    <div class="p-score-lg" style="color: #94a3b8;">7</div>
+                </div>
+            </div>
+
+            <!-- RIGHT: Center Leaderboard -->
+            <div class="projector-sidebar">
+                <div class="sidebar-header">Center Leaders</div>
+                
+                <div class="lb-row">
+                    <span class="lb-rank">1</span>
+                    <span class="lb-name">Alex (L12)</span>
+                    <span class="lb-record">8-2</span>
+                </div>
+                <div class="lb-row">
+                    <span class="lb-rank">2</span>
+                    <span class="lb-name">Sarah (L03)</span>
+                    <span class="lb-record">7-3</span>
+                </div>
+                <div class="lb-row">
+                    <span class="lb-rank">3</span>
+                    <span class="lb-name">Mike (L05)</span>
+                    <span class="lb-record">6-4</span>
+                </div>
+                <div class="lb-row">
+                    <span class="lb-rank">4</span>
+                    <span class="lb-name">Dave (L09)</span>
+                    <span class="lb-record">6-5</span>
+                </div>
+                <div class="lb-row">
+                    <span class="lb-rank">5</span>
+                    <span class="lb-name">Jen (L02)</span>
+                    <span class="lb-record">5-5</span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+    <!-- 2. LANE TABLET (BOTTOM) -->
+    <div>
+        <div class="device-label">Lane Tablet (Kiosk)</div>
+        <div class="tablet-frame shadow-soft">
+            
+            <!-- Header -->
+            <div class="tablet-header">
+                <div class="th-title"><i class="fas fa-trophy"></i> MATCHUPS</div>
+                <div style="font-weight:600; color:#334155; font-size:14px;">14:02 Remaining</div>
+            </div>
+
+            <div class="tablet-body">
+                
+                <!-- LEFT: Matchup + Footer -->
+                <div class="tablet-left">
+                    
+                    <!-- Matchup Area -->
+                    <div class="tablet-matchup-view">
+                        <div class="tm-card">
+                            <div class="tm-vs">VS</div>
+                            <div class="tm-side hero">
+                                <div class="tm-label">You (Lane 12)</div>
+                                <div class="tm-score">9</div>
+                            </div>
+                            <div class="tm-side villain">
+                                <div class="tm-label">Mike (Lane 05)</div>
+                                <div class="tm-score" style="color: #94a3b8;">7</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Footer: Lane Roster -->
+                    <div class="tablet-footer">
+                        <div class="lane-player active">
+                            <div class="lp-avatar">AL</div>
+                            <div class="lp-name">Alex</div>
+                            <div class="lp-record text-blue-600">4-2</div>
+                        </div>
+                        <div class="lane-player">
+                            <div class="lp-avatar">SA</div>
+                            <div class="lp-name">Sarah</div>
+                            <div class="lp-record">3-3</div>
+                        </div>
+                        <div class="lane-player">
+                            <div class="lp-avatar">JO</div>
+                            <div class="lp-name">John</div>
+                            <div class="lp-record">2-4</div>
+                        </div>
+                        <div class="lane-player">
+                            <div class="lp-avatar">EM</div>
+                            <div class="lp-name">Emily</div>
+                            <div class="lp-record">5-1</div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- RIGHT: Center Leaderboard (Mirrored) -->
+                <div class="tablet-sidebar">
+                    <div class="sidebar-header">Center Leaders</div>
+                    <div class="lb-row">
+                        <span class="lb-rank">1</span>
+                        <span class="lb-name">Alex (L12)</span>
+                        <span class="lb-record">8-2</span>
+                    </div>
+                    <div class="lb-row">
+                        <span class="lb-rank">2</span>
+                        <span class="lb-name">Sarah (L03)</span>
+                        <span class="lb-record">7-3</span>
+                    </div>
+                    <div class="lb-row">
+                        <span class="lb-rank">3</span>
+                        <span class="lb-name">Mike (L05)</span>
+                        <span class="lb-record">6-4</span>
+                    </div>
+                    <div class="lb-row">
+                        <span class="lb-rank">4</span>
+                        <span class="lb-name">Dave (L09)</span>
+                        <span class="lb-record">6-5</span>
+                    </div>
+                    <div class="lb-row">
+                        <span class="lb-rank">5</span>
+                        <span class="lb-name">Jen (L02)</span>
+                        <span class="lb-record">5-5</span>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+</body>
+</html>
